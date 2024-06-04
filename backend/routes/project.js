@@ -6,9 +6,15 @@ import {
   handleGetProjectWithId,
   handleDeleteProjectWithId,
   handleUpdateProjectWithId,
+  handleFetchUnallotedProject
 } from '../controllers/projects.js'
+
 const router = express.Router()
 import { protect, restrictTo } from '../controllers/users.js'
+
+
+router.route('/unallotted-projects').get(handleFetchUnallotedProject)
+
 router
   .route('/:projectId')
   .get(handleGetProjectWithId)

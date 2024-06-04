@@ -1,5 +1,112 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
+// export const fetchStudents = async (search, sortBy, sortOrder, department) => {
+//   console.log(department)
+//   const response = await fetch(
+//     `${API_BASE_URL}/api/student?search=${encodeURIComponent(
+//       search
+//     )}&sort_by=${encodeURIComponent(sortBy)}&sort_order=${encodeURIComponent(
+//       sortOrder
+//     )}&department=${encodeURIComponent(department)}`,
+//     {
+//       method: 'GET',
+//       credentials: 'include',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//     }
+//   )
+//   if (!response.ok) {
+//     throw new Error('Failed to fetch students')
+//   }
+//   const data = await response.json()
+//   console.log(data)
+//   // console.log(data.data)
+//   return data.data
+// }
+export const fetchStudents = async (
+  search,
+  sortBy,
+  sortOrder,
+  department = null,
+  role = 'Admin'
+) => {
+  console.log('fetching students', department)
+  const queryParams = new URLSearchParams({
+    search,
+    sort_by: sortBy,
+    sort_order: sortOrder,
+  })
+  if (role === 'Guide' && department) {
+    queryParams.append('department', department)
+  }
+  console.log(queryParams.toString())
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/student?${queryParams.toString()}`
+  )
+  if (!response.ok) {
+    const errorDetails = await response.json()
+    throw new Error(errorDetails.message || 'Failed to fetch students')
+  }
+
+  const data = await response.json()
+  return data.data
+}
+
+export const deleteStudent = async (id) => {
+  console.log(id)
+  const token = localStorage.getItem('userInfo')
+  const response = await fetch(`${API_BASE_URL}/api/student/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  if (!response.ok) {
+    throw new Error('Failed to delete student')
+  }
+  return await response.json()
+}
+
+export const addStudent = async (data) => {
+  let token = localStorage.getItem('userInfo')
+
+  const response = await fetch(`${API_BASE_URL}/api/student`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  const responseBody = await response.json()
+  if (!response.ok) {
+    throw new Error(responseBody.message)
+  }
+  return responseBody
+}
+
+export const updateStudent = async (id, data) => {
+  const token = localStorage.getItem('userInfo')
+  // console.log(token)
+  if (!token) return
+  const response = await fetch(`${API_BASE_URL}/api/student/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) {
+    throw new Error('Failed to update student')
+  }
+  return await response.json()
+}
+
 export const getBatchMates = async (userId) => {
   const response = await fetch(
     `${API_BASE_URL}/api/student/batchmates?userId=${userId}`,
@@ -112,7 +219,7 @@ export const handleAddNotification = async (data) => {
 }
 
 export const handleFetchAllTeammates = async (userId) => {
-  console.log('fetching teammates', userId)
+  // console.log('fetching teammates', userId)
   const response = await fetch(
     `${API_BASE_URL}/api/student/team?userId=${userId}`,
     {
@@ -128,6 +235,23 @@ export const handleFetchAllTeammates = async (userId) => {
   if (!response.ok) {
     throw new Error(responseBody.message)
   }
-  console.log(responseBody.data)
+  // console.log(responseBody.data)
+  return responseBody.data
+}
+
+export const storePreferences = async (data) => {
+  const response = await fetch(`${API_BASE_URL}/api/student/preference`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+  const responseBody = await response.json()
+
+  if (!response.ok) {
+    throw new Error(responseBody.message)
+  }
   return responseBody.data
 }

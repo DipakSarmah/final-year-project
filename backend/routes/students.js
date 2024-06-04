@@ -11,11 +11,12 @@ import {
   handleGetAllTeamRequest,
   handleAddNewMemberToTeam,
   handleDeleteNotificationTeamRequest,
-  handleFetchTeammates
+  handleFetchTeammates,
+  handleAddTeamPreference
 } from '../controllers/students.js'
 
 import { protect, restrictTo } from '../controllers/users.js'
-
+//   /api/student/
 const router = express.Router()
 
 router
@@ -23,6 +24,8 @@ router
   .get(handleGetBatchMates)
   .post(handleAddNotificationStudentTeammate)
   .delete(handleDeleteNotificationTeamRequest)
+  
+  router.route('/preference').post(handleAddTeamPreference)
 
 router.route('/team').get(handleFetchTeammates).post(handleAddNewTeam).patch(handleAddNewMemberToTeam)
 

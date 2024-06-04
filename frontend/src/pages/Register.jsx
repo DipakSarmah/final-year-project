@@ -17,14 +17,13 @@ function Register() {
     formState: { errors },
   } = useForm()
   const navigate = useNavigate()
-  const { showToast } = useAppContext()
+  const { showToast, login } = useAppContext()
   const mutation = useMutation({
     mutationFn: apiClient.register,
     onSuccess: async (res) => {
       console.log('registration successful')
-      localStorage.setItem('userInfo', res.token)
-      // showToast({message: 'Registration Success!',type: 'SUCCESS'})
-      // await QueryClient.invalidateQueries('validateToken')
+
+      login(res.userDetails, res.token, res.role)
       showToast({
         message: 'Registered Successful!',
         type: ToastMessageType.success,
@@ -77,6 +76,7 @@ function Register() {
           <span className="text-red-500">{errors.email.message}</span>
         )}
       </label>
+
       <label className="text-gray-700 text-sm w-full font-bold flex-1">
         Role
         <select

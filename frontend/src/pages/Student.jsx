@@ -1,104 +1,59 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { handleFetchAllTeammates } from '../api/student'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Modal from '../components/Modal'
+import ProjectPreferences from '../components/students/ProjectPreferences'
+import { useAppContext } from '../hooks/useContextHooks'
 function Student() {
-  const navigate = useNavigate()
-  const [isFetchTeam, setIsFetchTeam] = useState(false)
+  const [userDetails, setUserDetails] = useState(null)
+  const [showModal, setShowModal] = useState(false)
+  const userDetailsRef = useRef()
+  const { user } = useAppContext()
+  useEffect(() => {
+    const storedData = localStorage.getItem('userDetails')
+    if (storedData) {
+      const parsedData = JSON.parse(storedData)
+      console.log(parsedData)
+      userDetailsRef.current = parsedData
+      setUserDetails(parsedData) // Optionally, store data in state if needed
+    }
+  }, [])
 
-  const enrolliD = 'CSB20084'
-  const sem = 8
-  const cgpa = 9.12
+  useEffect(() => {
+    if (userDetailsRef.current) {
+      // console.log('Data from localStorage:', userDetailsRef.current)
+      // Perform any side effects or operations with the ref data
+    }
+  }, [userDetailsRef.current]) // Only re-run if localStorageRef.current changes
+
+  const navigate = useNavigate()
+  const [showTeamMates, setShowTeamMates] = useState(false)
+  const [isLeader, setIsLeader] = useState(false)
+  const enrolliD = user.enrollment_id
+  const sem = user.sem
+  const cgpa = user.cgpa
 
   const fetchAllTeammates = useQuery({
     queryKey: ['team-members'],
     queryFn: () => handleFetchAllTeammates(enrolliD),
-    enabled: isFetchTeam,
   })
 
   const handlefetchteammates = () => {
-    setIsFetchTeam((isFetchTeam) => !isFetchTeam)
-    console.log('clicked', isFetchTeam)
-    if (!isFetchTeam) {
-      fetchAllTeammates.refetch()
-    }
+    setShowTeamMates((showTeamMates) => !showTeamMates)
+    // console.log('clicked', isFetchTeam)
+    fetchAllTeammates.refetch()
   }
 
-  // return (
-  //   <div className="bg-blue-200">
-  //     <h1 className="text-xl font-bold mb-4 text-center">
-  //       Welcome {enrolliD},<br /> Semester: {sem}
-  //       <br /> Cgpa: {cgpa}
-  //     </h1>
-  //     <section className="bg-slate-200 p-2 mb-3">
-  //       <div>
-  //         <p className="text-xl font-sans text-pretty">
-  //           You wanna see your team or add member to your team? go to team page
-  //           to control team.
-  //         </p>
-  //         <button
-  //           className="bg-black rounded-lg text-white font-mono text-md font-medium px-5 py-2.5 "
-  //           onClick={() => navigate('/student/team')}
-  //         >
-  //           Go to teams page
-  //         </button>
-  //       </div>
-  //     </section>
-  //     <section className="bg-slate-300 p-2">
-  //       <p className="text-xl font-bold text-pretty font-sans">
-  //         your current team members are:
-  //       </p>
-  //       <button
-  //         className="bg-black text-white rounded-md p-2 font-mono"
-  //         onClick={() => handlefetchteammates(enrolliD)}
-  //       >
-  //         See Your Teammates
-  //       </button>
-
-  //       {fetchAllTeammates.isLoading && <p>Loading...</p>}
-  //       {fetchAllTeammates.error && (
-  //         <p>Error: {fetchAllTeammates.error.message}</p>
-  //       )}
-  //       {isFetchTeam && fetchAllTeammates.data && (
-  //         <div className="flex flex-col justify-center items-center">
-  //           <div className="bg-slate-400 w-full p-2 rounded-md mt-2">
-  //             <h1 className="text-xl font-bold">Team details: </h1>
-  //             <h1 className="text-xl font-bold text-pretty">
-  //               Team Id: {fetchAllTeammates.data.teamDetails[0].team_id} No of
-  //               members: {fetchAllTeammates.data.teamDetails[0].members_number}{' '}
-  //               Average Cgpa: {fetchAllTeammates.data.teamDetails[0].avg_cgpa}{' '}
-  //               Current Semester:{' '}
-  //               {fetchAllTeammates.data.teamDetails[0].semester}
-  //             </h1>
-  //             <div className='flex flex-col'>
-  //               {fetchAllTeammates.data.AllTeammateDetails.map(
-  //                 (student, index) => (
-  //                   <div key={student.enrollment_id} className='bg-slate-500 p-2 rounded-sm m-1'>
-  //                     Member {index + 1}{' '}
-  //                     {student.enrollment_id ===
-  //                     fetchAllTeammates.data.teamDetails[0].team_id ? (
-  //                       <span>(Leader)</span>
-  //                     ) : (
-  //                       ' '
-  //                     )}
-  //                     <div>Enrollment Id: {student.enrollment_id}</div>
-  //                     <div>
-  //                       Name : {student.first_name}
-  //                       {''}
-  //                       {student.last_name}
-  //                     </div>
-  //                     <div>Gsuite Email Id: {student.gsuite_email}</div>
-  //                     <div>Cgpa: {student.cgpa}</div>
-  //                   </div>
-  //                 )
-  //               )}
-  //             </div>
-  //           </div>
-  //         </div>
-  //       )}
-  //     </section>
-  //   </div>
-  // )
+  const onClose = () => {
+    setShowModal(false)
+  }
+  const handleSetPreferences = () => {
+    fetchAllTeammates.refetch().then(() => {
+      const leader = fetchAllTeammates.data.teamDetails[0].team_id
+      setIsLeader(leader === enrolliD)
+    })
+  }
 
   return (
     <div className="min-h-screen bg-black text-white p-6">
@@ -134,12 +89,12 @@ function Student() {
           See Your Teammates
         </button>
 
-        {fetchAllTeammates.isLoading && <p>Loading...</p>}
-        {fetchAllTeammates.error && (
+        {showTeamMates && fetchAllTeammates.isLoading && <p>Loading...</p>}
+        {showTeamMates && fetchAllTeammates.error && (
           <p>Error: {fetchAllTeammates.error.message}</p>
         )}
 
-        {isFetchTeam && fetchAllTeammates.data && (
+        {showTeamMates && fetchAllTeammates.data && (
           <div className="bg-gray-600 p-4 rounded-lg">
             <h1 className="text-2xl font-bold mb-4">Team Details</h1>
             <p className="text-lg font-semibold mb-4">
@@ -182,6 +137,31 @@ function Student() {
             </div>
           </div>
         )}
+      </section>
+
+      <section>
+        <h1>set preferences</h1>
+        <button
+          className="bg-blue-500 rounded-lg text-white font-mono text-md font-medium px-5 py-2.5 hover:bg-blue-600"
+          onClick={() => {
+            handleSetPreferences()
+            setShowModal(true)
+          }}
+        >
+          click here to set preferences
+        </button>
+        <div>
+          {fetchAllTeammates.data && (
+            <Modal isVisible={showModal} onClose={onClose}>
+              <ProjectPreferences
+                teamDetails={fetchAllTeammates.data.teamDetails[0]}
+                userDetails={userDetails}
+                onClose={onClose}
+                isLeader={isLeader}
+              />
+            </Modal>
+          )}
+        </div>
       </section>
     </div>
   )

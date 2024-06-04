@@ -12,7 +12,7 @@ import { ToastMessageType } from '../variables'
 
 function SignIn() {
   const navigate = useNavigate()
-  const { showToast } = useAppContext()
+  const { showToast, login } = useAppContext()
   const {
     register,
     handleSubmit,
@@ -23,9 +23,19 @@ function SignIn() {
     mutationFn: apiClient.handlesignIn,
     onSuccess: async (res) => {
       console.log('signin successful')
-      localStorage.setItem('userInfo', res.token)
+      localStorage.setItem('role', res.role)
+
+      login(res.userDetails, res.token, res.role)
       // showToast({message: 'Registration Success!',type: 'SUCCESS'})
       // await QueryClient.invalidateQueries('validateToken')
+      //Always check if the item exists in localStorage before attempting to parse it. If the item is null, parsing it will throw an error.
+      // Retrieving the object
+      // Get the JSON string from localStorage
+      //const retrievedUserString = localStorage.getItem('user');
+
+      // Convert the JSON string back to an object
+      //const retrievedUser = JSON.parse(retrievedUserString);
+
       showToast({
         message: 'Sign in Successful!',
         type: ToastMessageType.success,
@@ -34,7 +44,7 @@ function SignIn() {
         navigate('/student')
       } else if (res.role === 'Guide') {
         navigate('/guide')
-      } else {
+      } else if (res.role === 'Admin') {
         navigate('/admin')
       }
     },

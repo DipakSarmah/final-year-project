@@ -17,10 +17,10 @@ function Teams() {
   const [search, setSearch] = useState('')
   const [showNotification, setShowNotification] = useState(false)
   const [openCreateTeamModal, setOpenCreateModal] = useState(false)
-  const { showToast } = useAppContext()
-  const enrolliD = 'CSB20048'
-  const sem = 8
-  const cgpa = 9.12
+  const { user, showToast } = useAppContext()
+  const enrolliD = user.enrollment_id
+  const sem = user.sem
+  const cgpa = user.cgpa
 
   const mutationTeam = useMutation({
     mutationFn: addNewTeamApi,

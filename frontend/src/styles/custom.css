@@ -1,0 +1,12 @@
+/* src/styles/custom.css */
+.sidebar-button {
+  @apply bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-md transition-colors duration-300;
+}
+
+.custom-bg {
+  @apply bg-customGray;
+}
+
+.custom-padding {
+  @apply p-8;
+}

@@ -1,19 +1,32 @@
 import AppError from '../utils/AppError.js'
 
-const handleDuplicateFieldsDB = (err) => {
-  return new AppError(err.sqlMessage, 400)
+const handleDuplicateFieldsDB = (error) => {
+  const message = `Duplicate field value: ${
+    error.sqlMessage.match(/'[^']+'/)[0]
+  }. Please use another value!`
+  return new AppError(message, 400)
 }
-const handleWrongDataTypeFieldsDB = (err) => {
-  return new AppError(err.sqlMessage, 400)
+const handleWrongDataTypeFieldsDB = (error) => {
+  const message = `Wrong data type for field: ${
+    error.sqlMessage.match(/'[^']+'/)[0]
+  }. Please provide correct data type!`
+  return new AppError(message, 400)
 }
 
-const handleCastErrorDB = (err) => {
-  const message = `Cast Error occured`
+const handleReferenceError = (error) => {
+  const match = error.sqlMessage.match(/FOREIGN KEY \(`(.*?)`\)/)
+  const field = match ? match[1] : 'Unknown field'
+  const message = `Invalid reference: The value provided for the field '${field}' does not exist.`
+  return new AppError(message, 400)
+}
+const handleCaseErrorDB = (error) => {
+  const message = `Invalid ${error.path}: ${error.value}.`
   return new AppError(message, 400)
 }
 
 const sendErrorProd = (err, res) => {
   // Operational, trusted error: send message to client
+  console.log('test error send error from production', err)
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -34,6 +47,7 @@ const sendErrorProd = (err, res) => {
 }
 
 const sendErrorDev = (err, res) => {
+  console.log('test send error from dev', err)
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -48,6 +62,7 @@ const handleJWTExpiredError = (err) =>
   new AppError('Your token has expired! Please log in again', 401)
 
 export default (err, req, res, next) => {
+  console.log(err)
   err.statusCode = err.statusCode || 500
   err.status = err.status || 'error'
   if (process.env.NODE_ENV === 'development') {
@@ -67,7 +82,9 @@ export default (err, req, res, next) => {
 
     if (error.name === 'JsonWebTokenError') error = handleJWTError(error)
     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError(error)
-    error.message = err.message
+    if (error.errno === 1452) error = handleReferenceError(error)
+
+    // error.message = err.message
     sendErrorProd(error, res)
   }
 }

@@ -1,6 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { useMutation } from '@tanstack/react-query'
-import * as apiClient from '../api/admin'
+import { handleAddNewProject } from './../api/project'
+import { useAppContext } from '../hooks/useContextHooks'
+import {
+  ToastMessageType,
+  COURSES,
+  DEPARTMENT_NAME_WITH_ID,
+} from './../variables'
+// eslint-disable-next-line react/prop-types
 
 // eslint-disable-next-line react/prop-types
 function AddProjectDetails({ onClose }) {
@@ -9,21 +16,30 @@ function AddProjectDetails({ onClose }) {
     handleSubmit,
     formState: { errors },
   } = useForm()
+  const { showToast } = useAppContext()
 
   const mutation = useMutation({
-    mutationFn: apiClient.addProjectDetails,
+    mutationFn: handleAddNewProject,
     onSuccess: async (res) => {
       console.log(res)
       onClose()
+      showToast({
+        message: 'Successfully added the project detail',
+        type: ToastMessageType.success,
+      })
     },
     onError: (error) => {
-      console.log(error)
+      console.log(error.message)
+      onClose()
+      showToast({ message: error.message, type: ToastMessageType.error })
     },
   })
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data)
-    mutation.mutate(data)
+    const userDetailsString = localStorage.getItem('userDetails')
+    const userDetails = JSON.parse(userDetailsString)
+    const guideId = userDetails.guide_id
+    mutation.mutate({ ...data, guideId })
   })
 
   return (
@@ -116,6 +132,66 @@ function AddProjectDetails({ onClose }) {
         )}
       </label>
 
+      <label className="text-gray-700 text-sm w-full font-bold flex-1">
+        Department
+        <select
+          {...register('departmentName', {
+            required: 'This field is required',
+          })}
+          className="border rounded w-full p-2 text-gray-700 font-normal"
+        >
+          <option value="" className="text-sm font-bold">
+            Select Department Name
+          </option>
+          {DEPARTMENT_NAME_WITH_ID.map((departmentName, index) => (
+            <option
+              value={departmentName.dept_id}
+              key={index + 1}
+              className="text-md py-2"
+            >
+              {departmentName.dept_name}
+            </option>
+          ))}
+        </select>
+        {errors.departmentName && (
+          <span className="text-red-500">{errors.departmentName.message}</span>
+        )}
+      </label>
+      <label className="text-gray-700 text-lg w-full font-bold flex-1">
+        Course Name
+        <select
+          {...register('course', {
+            required: 'This field is required',
+          })}
+          className="border rounded w-full p-2 text-gray-700 font-normal"
+        >
+          <option value="" className="text-lg font-bold">
+            Select Course Name
+          </option>
+          {COURSES.map((course, index) => (
+            <option value={course} key={index + 1} className="text-md py-2">
+              {course}
+            </option>
+          ))}
+        </select>
+        {errors.course && (
+          <span className="text-red-500">{errors.course.message}</span>
+        )}
+      </label>
+      <label className="text-gray-700 text-lg w-full font-bold flex-1">
+        Semester
+        <input
+          type="number"
+          placeholder="Semester"
+          className="border rounded w-full p-2 font-normal"
+          {...register('semester', {
+            required: 'This field is required',
+          })}
+        />
+        {errors.semester && (
+          <span className="text-red-500">{errors.semester.message}</span>
+        )}
+      </label>
       <span className="flex items-center flex-col">
         <button
           type="submit"

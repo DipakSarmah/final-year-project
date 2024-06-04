@@ -3,7 +3,10 @@ import {
   useMutation,
   // useQueryClient,
 } from '@tanstack/react-query'
-import * as apiClient from '../api/admin'
+import { addProjectGuide } from '../api/guide'
+import { DEPARTMENT_NAME_WITH_ID } from '../variables'
+import { useAppContext } from '../hooks/useContextHooks'
+import { ToastMessageType } from '../variables'
 
 // eslint-disable-next-line react/prop-types
 function AddProjectGuide({ onClose }) {
@@ -12,14 +15,23 @@ function AddProjectGuide({ onClose }) {
     handleSubmit,
     formState: { errors },
   } = useForm()
+  const { showToast } = useAppContext()
 
   const mutation = useMutation({
-    mutationFn: apiClient.addProjectGuide,
-    onSuccess: async (res) => {
-      console.log(res)
+    mutationFn: addProjectGuide,
+    onSuccess: async () => {
       onClose()
+      showToast({
+        message: 'Successfully added Project guide ',
+        type: ToastMessageType.success,
+      })
     },
     onError: (error) => {
+      onClose()
+      showToast({
+        message: error.message,
+        type: ToastMessageType.error,
+      })
       console.log(error)
     },
   })
@@ -80,13 +92,27 @@ function AddProjectGuide({ onClose }) {
           <span className="text-red-500">{errors.lastName.message}</span>
         )}
       </label>
-      <label className="text-gray-700 text-lg w-full font-bold flex-1">
+      <label className="text-gray-700 text-sm w-full font-bold flex-1">
         Department
-        <input
-          type="text"
-          className="border rounded w-full p-2 font-normal"
-          {...register('department', { required: 'This field is required' })}
-        />
+        <select
+          {...register('department', {
+            required: 'This field is required',
+          })}
+          className="border rounded w-full p-2 text-gray-700 font-normal"
+        >
+          <option value="" className="text-sm font-bold">
+            Select Department for Project
+          </option>
+          {DEPARTMENT_NAME_WITH_ID.map((departmentName, index) => (
+            <option
+              value={departmentName.dept_id}
+              key={index + 1}
+              className="text-md py-2"
+            >
+              {departmentName.dept_name}
+            </option>
+          ))}
+        </select>
         {errors.department && (
           <span className="text-red-500">{errors.department.message}</span>
         )}

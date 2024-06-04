@@ -2,61 +2,312 @@ import db from '../connection.js'
 import AppError from '../utils/AppError.js'
 import CatchAsync from '../utils/CatchAsync.js'
 
-// get all projects
+//====> /api/student/
+// export const handleGetStudent = CatchAsync(async (req, res, next) => {
+//   const { search = '', sort_by = 'first_name', sort_order = 'asc'  } = req.query
+
+//   // Validate sort_order
+//   const order = sort_order.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
+
+//   // Validate sort_by field
+//   const validSortFields = [
+//     'first_name',
+//     'last_name',
+//     'gsuite_email',
+//     'department',
+//   ]
+//   const sortBy = validSortFields.includes(sort_by) ? sort_by : 'first_name'
+
+//   // Create the base query
+//   let query = 'SELECT * FROM `student_table` WHERE `status` = "ACTIVE"'
+
+//   // Add search functionality
+//   if (search) {
+//     query += `AND (first_name LIKE ? OR last_name LIKE ? OR gsuite_email LIKE ? OR department LIKE ?)`
+//   }
+
+//   // Add sorting functionality
+//   query += ` ORDER BY ${sortBy} ${order}`
+
+//   // Execute the query
+//   const [results] = await db.execute(query, Array(4).fill(`%${search}%`))
+
+//   res
+//     .status(200)
+//     .json({ message: 'successfully fetched the data', data: results })
+// })
+
+// export const handleGetStudent = CatchAsync(async (req, res, next) => {
+//   const {
+//     search = '',
+//     sort_by = 'first_name',
+//     sort_order = 'asc',
+//     department = null,
+//   } = req.query
+
+//   // Validate sort_order
+//   const order = sort_order.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
+
+//   // Validate sort_by field
+//   const validSortFields = [
+//     'first_name',
+//     'last_name',
+//     'gsuite_email',
+//     'department',
+//   ]
+//   const sortBy = validSortFields.includes(sort_by) ? sort_by : 'first_name'
+
+//   // Create the base query
+//   let query = 'SELECT * FROM `student_table` WHERE `status` = "ACTIVE"'
+
+//   // Add department filter for guides
+//   const params = []
+//   if (department) {
+//     query += ' AND department = ?'
+//     params.push(department)
+//   }
+
+//   // Add search functionality
+//   if (search) {
+//     query +=
+//       ' AND (first_name LIKE ? OR last_name LIKE ? OR gsuite_email LIKE ? OR department LIKE ?)'
+//     params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`)
+//   }
+
+//   // Add sorting functionality
+//   query += ` ORDER BY ${sortBy} ${order}`
+
+//   // Execute the query
+//   const [results] = await db.execute(query, params)
+
+//   res
+//     .status(200)
+//     .json({ message: 'successfully fetched the data', data: results })
+// })
+
 export const handleGetStudent = CatchAsync(async (req, res, next) => {
-  const [results, fields] = await db.execute(
-    'SELECT `enrollment_id`,`first_name`,`last_name`,`gsuite_email`,`cgpa`,`register_data` FROM `student_table`'
-  )
-  // `enrollment_id`,`first_name`,`last_name`,`gsuite_email`,`cgpa`,`register_data`
-  // console.log(results)
-  // console.log(fields)
+  console.log('testing handle fetch student')
+  const {
+    search = '',
+    sort_by = 'first_name',
+    sort_order = 'asc',
+    department = null,
+  } = req.query
+  console.log(req.query)
+  // Validate sort_order
+  const order = sort_order.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
+
+  // Validate sort_by field
+  const validSortFields = [
+    'first_name',
+    'last_name',
+    'gsuite_email',
+    'department',
+  ]
+  const sortBy = validSortFields.includes(sort_by) ? sort_by : 'first_name'
+
+  // Create the base query
+  let query = 'SELECT * FROM `student_table` WHERE `status` = "ACTIVE"'
+  const params = []
+
+  // Add department filter for guides
+  if (department) {
+    query += ' AND department = ?'
+    params.push(department)
+  }
+
+  // Add search functionality
+  if (search) {
+    query +=
+      ' AND (first_name LIKE ? OR last_name LIKE ? OR gsuite_email LIKE ? OR department LIKE ?)'
+    params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`)
+  }
+
+  // Add sorting functionality
+  query += ` ORDER BY ${sortBy} ${order}`
+
+  // Execute the query
+  const [results] = await db.execute(query, params)
+
   res
     .status(200)
-    .json({ message: 'successfully fatched the data', data: results })
+    .json({ message: 'successfully fetched the data', data: results })
 })
 
 export const handleAddStudent = CatchAsync(async (req, res, next) => {
   const {
-    enrollmentId,
-    firstName,
-    lastName,
-    gsuiteEmail,
-    Cgpa,
-    RegisterDate,
-    Sem,
+    enrollment_id: enrollmentId,
+    first_name: firstName,
+    last_name: lastName,
+    gsuite_email: gsuiteEmail,
+    cgpa: Cgpa,
+    register_data: registerDate = null, // Corrected the field name
+    sem: Sem,
+    admission_year: admissionYear,
+    gender = null, // Set default values to null if not provided
+    profile_picture_url: profilePictureUrl = null, // Set default values to null if not provided
+    status = 'ACTIVE', // Set default value to 'ACTIVE' if not provided
+    course = null, // Set default values to null if not provided
+    department = null, // Set default values to null if not provided
   } = req.body
+
   if (
     !enrollmentId ||
     !firstName ||
     !lastName ||
     !Cgpa ||
     !gsuiteEmail ||
-    !Sem
+    !Sem ||
+    !admissionYear
   ) {
-    return next(new AppError('All fields are required', 400))
+    return next(new AppError('All required fields must be provided', 400))
+  }
+  const [already_exist] = await db.execute(
+    `SELECT * from student_table where enrollment_id = ?`,
+    [enrollmentId]
+  )
+
+  if (already_exist.length !== 0 && already_exist[0].status === 'INACTIVE') {
+    const [updateStudentStatus] = await db.execute(
+      `UPDATE student_table SET status = ? WHERE enrollment_id=?`,
+      [status, enrollmentId]
+    )
+
+    return res.status(200).json({
+      message: 'Already exist student and status update to ACTIVE again',
+      data: already_exist[0],
+    })
   }
 
-  const [result, fields] = await db.execute(
-    `INSERT INTO \`student_table\` (enrollment_id, first_name, last_name, gsuite_email, cgpa,sem) VALUES (?,?,?,?,?,?);`,
-    [enrollmentId, firstName, lastName, gsuiteEmail, Cgpa, Sem]
+  // Execute the SQL query
+  const [result] = await db.execute(
+    `INSERT INTO \`student_table\` (enrollment_id, first_name, last_name, gsuite_email, cgpa, register_data, sem, admission_year, gender, profile_picture_url, status, course, department) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+    [
+      enrollmentId,
+      firstName,
+      lastName,
+      gsuiteEmail,
+      Cgpa,
+      registerDate,
+      Sem,
+      admissionYear,
+      gender,
+      profilePictureUrl,
+      status,
+      course,
+      department,
+    ]
   )
-  // console.log(result)
+
+  // Send the response
   res
     .status(201)
     .json({ message: 'Student Successfully created.', itemAdded: req.body })
 })
 
 export const handleGetStudentWithId = CatchAsync(async (req, res, next) => {
+  // Fetch a Student by ID
   const enrollmentId = req.params.id
+
   const [results, fields] = await db.execute(
-    'SELECT `enrollment_id`,`first_name`,`last_name`,`gsuite_email`,`cgpa`,`register_data` FROM `student_table` WHERE `enrollment_id`=?',
+    'SELECT `enrollment_id`, `first_name`, `last_name`, `gsuite_email`, `cgpa`, `register_data`, `sem`, `admission_year`, `gender`, `profile_picture_url`, `status`, `course`, `department` FROM `student_table` WHERE `enrollment_id`=?',
     [enrollmentId]
   )
 
-  // console.log(results[0])
+  if (results.length === 0) {
+    return next(new AppError('Student not found', 404))
+  }
+
   res
     .status(200)
-    .json({ message: 'successfully fatched the data', data: results[0] })
+    .json({ message: 'Successfully fetched the data', data: results[0] })
+})
+
+//update student with enrollment number.
+export const handleUpdateStudentWithId = CatchAsync(async (req, res, next) => {
+  const {
+    enrollment_id: enrollmentId,
+    first_name: firstName,
+    last_name: lastName,
+    gsuite_email: gsuiteEmail,
+    cgpa: Cgpa,
+    register_data: RegisterDate,
+    sem: Sem,
+    admission_year: admissionYear,
+    gender,
+    profile_picture_url: profilePictureUrl,
+    status,
+    course,
+    department,
+  } = req.body
+  // console.log('test handleUpdateStudentWithId 1', req.body)
+
+  if (!enrollmentId) {
+    return next(new AppError('Enrollment ID is required', 400))
+  }
+
+  const fieldsToUpdate = {
+    first_name: firstName,
+    last_name: lastName,
+    gsuite_email: gsuiteEmail,
+    cgpa: Cgpa,
+    register_data: RegisterDate,
+    sem: Sem,
+    admission_year: admissionYear,
+    gender: gender,
+    profile_picture_url: profilePictureUrl,
+    status: status,
+    course: course,
+    department: department,
+  }
+  // console.log('test handleUpdateStudentWithId 2', fieldsToUpdate)
+
+  const setString = Object.keys(fieldsToUpdate)
+    .filter((key) => fieldsToUpdate[key] !== undefined)
+    .map((key) => `${key}=?`)
+    .join(', ')
+
+  // console.log('test handleUpdateStudentWithId 3', setString)
+  const values = Object.values(fieldsToUpdate).filter(
+    (value) => value !== undefined
+  )
+  values.push(enrollmentId)
+
+  const [result, fields] = await db.execute(
+    `UPDATE \`student_table\` SET ${setString} WHERE enrollment_id=?`,
+    values
+  )
+
+  if (result.affectedRows === 0) {
+    return next(new AppError('Student not found or no changes made', 404))
+  }
+
+  res.status(200).json({ message: 'Student successfully updated' })
+})
+
+// Delete a Student
+export const handleDeleteStudentWithId = CatchAsync(async (req, res, next) => {
+  const enrollmentId = req.params.id
+  console.log(enrollmentId)
+
+  if (!enrollmentId) {
+    return next(new AppError('Enrollment ID is required', 400))
+  }
+
+  const [result, fields] = await db.execute(
+    'UPDATE `student_table` SET status = ? WHERE `enrollment_id`=?',
+    ['INACTIVE', enrollmentId]
+  )
+
+  const [deleteUserAccount] = await db.execute(
+    'Delete from user_table where user_id = ? and role = ?',
+    [enrollmentId, 'Student']
+  )
+  if (result.affectedRows === 0) {
+    return next(new AppError('Student not found', 404))
+  }
+
+  res.status(200).json({ message: 'Student successfully deleted' })
 })
 
 export const handleGetBatchMates = CatchAsync(async (req, res, next) => {
@@ -186,13 +437,6 @@ export const handleAddNewMemberToTeam = CatchAsync(async (req, res, next) => {
       )
     )
   }
-  // if (hasJoinedTeam.length) {
-  //   return next(
-  //     new AppError(
-  //       'You are already in a Team, Contact Admin/Guide to Join another Team. '
-  //     )
-  //   )
-  // }
 
   const [TeamOfSender] = await db.execute(
     `select * from project_team_table where team_id = ?`,
@@ -252,13 +496,7 @@ export const handleAddNotificationStudentTeammate = CatchAsync(
         )
       )
     }
-    // if(teamDetails.length===1){
-    //   return next(new AppError(`You have already joined a team/ created a team`))
-    // }
 
-    // const [hasJoinedTeam]= await db.execute(`select team_id,team_name,members_number,semester from project_team_table where team_name like ?`,
-    //   [`%${rec}%`]
-    // )
     if (teamDetails[0].members_number > 3)
       return next(new AppError('Number of Team Member limit exhausted', 400))
 
@@ -280,7 +518,7 @@ export const handleAddNotificationStudentTeammate = CatchAsync(
 
 export const handleDeleteNotificationTeamRequest = CatchAsync(
   async (req, res, next) => {
-    console.log(req.body)
+    // console.log(req.body)
     const requestId = req.body.request_id
     if (!requestId) {
       return next(
@@ -298,20 +536,37 @@ export const handleDeleteNotificationTeamRequest = CatchAsync(
   }
 )
 
-export const handleDeleteStudentWithId = CatchAsync(async (req, res, next) => {
-  const userId = req.params.id
+export const handleAddTeamPreference = CatchAsync(async (req, res, next) => {
+  // console.log(req.body)
+  const teamId = req.body.teamId
+  const preferences = req.body.preferences
+  const preferenceString = JSON.stringify(preferences)
+  // console.log(typeof preferenceString)
+  if (!teamId || !preferences || preferences.length === 0) {
+    return next(new AppError('Invalid input', 400))
+  }
+  const [isTeamPreferenceExist, teamPreferenceFields] = await db.execute(
+    'select * from team_preference_table where team_id = ?',
+    [teamId]
+  )
 
-  const result = await db.execute(
-    'Delete from `student_table` where `enrollment_id`=?',
-    [userId]
+  console.log(isTeamPreferenceExist)
+  if (isTeamPreferenceExist.length !== 0) {
+    return next(
+      new AppError(
+        'Preferences for project is already given by your team.',
+        400
+      )
+    )
+  }
+
+  const [addPreferences, fields] = await db.execute(
+    'insert into team_preference_table (team_id,preferences) VALUES (?,?)',
+    [teamId, preferenceString]
   )
-  const deleteUser = await db.execute(
-    'Delete from `user_table` where `user_id`=?',
-    [userId]
-  )
-  res.status(200).json({
-    message: `Successfully removed student with Student Id : ${userId}`,
+
+  res.status(201).json({
+    message: 'Preferences Saved Successfully',
+    data: req.body,
   })
 })
-
-export const handleUpdateStudentWithId = (req, res) => {}

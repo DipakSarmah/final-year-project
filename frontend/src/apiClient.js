@@ -13,6 +13,7 @@ export const register = async (formData) => {
   if (!response.ok) {
     throw new Error(responseBody.message)
   }
+  console.log(responseBody)
   return responseBody
 }
 

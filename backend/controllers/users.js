@@ -33,12 +33,12 @@ export const handleRegistration = CatchAsync(async (req, res) => {
   let isValidUser
   if (role === 'Student') {
     ;[isValidUser] = await db.execute(
-      'SELECT enrollment_id, gsuite_email FROM student_table WHERE enrollment_id = ? AND gsuite_email = ?',
+      'SELECT enrollment_id, gsuite_email,cgpa,first_name,last_name,sem,department,course,admission_year FROM student_table WHERE enrollment_id = ? AND gsuite_email = ?',
       [userId, email]
     )
-  } else if (role === 'Guide') {
+  } else if (role === 'Guide' || role === 'Admin') {
     ;[isValidUser] = await db.execute(
-      'SELECT guide_id, email FROM project_guide WHERE guide_id = ? AND email = ?',
+      'SELECT guide_id, email, first_name,last_name,dept_id FROM project_guide WHERE guide_id = ? AND email = ?',
       [userId, email]
     )
   }
@@ -60,6 +60,7 @@ export const handleRegistration = CatchAsync(async (req, res) => {
 
   res.status(201).json({
     message: 'Successfully registered.',
+    userDetails: isValidUser[0],
     role: role,
     token: generateToken(req.body),
   })
@@ -89,9 +90,30 @@ export const handleSignIn = CatchAsync(async (req, res, next) => {
   if (!isMatch) {
     return res.status(401).json({ message: 'Invalid Credentials' })
   }
+  let userDetails
+  if (user.role === 'Student') {
+    ;[userDetails] = await db.execute(
+      'SELECT enrollment_id, gsuite_email,cgpa,first_name,last_name,sem,department,course,admission_year FROM student_table WHERE enrollment_id = ? AND gsuite_email = ?',
+      [user.user_id, user.email]
+    )
+  } else if (user.role === 'Guide' || user.role === 'Admin') {
+    ;[userDetails] = await db.execute(
+      'SELECT guide_id, email, first_name,last_name,dept_id FROM project_guide WHERE guide_id = ? AND email = ?',
+      [user.user_id, user.email]
+    )
+  }
 
+  console.log('test signin: ', userDetails)
+  if (userDetails.length === 0) {
+    return next(new AppError('Re-Register to Login In.', 401))
+  }
   const token = generateToken(user)
-  res.status(200).json({ userId: user.user_id, token: token, role: user.role })
+  res.status(200).json({
+    userDetails: userDetails[0],
+    userId: user.user_id,
+    token: token,
+    role: user.role,
+  })
 })
 
 export const protect = CatchAsync(async (req, res, next) => {

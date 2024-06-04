@@ -4,11 +4,12 @@ import express from 'express'
 import cors from 'cors'
 import globalErrorHandler from './controllers/errorHandler.js'
 import AppError from './utils/AppError.js'
-import addProject from './routes/project.js'
+import handleProjectApi from './routes/project.js'
 import handleStudents from './routes/students.js'
 import userRouter from './routes/user.js'
 import authRouter from './routes/auth.js'
 import projectGuideRouter from './routes/projectGuide.js'
+import fileRoute from './routes/fileRoute.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -22,7 +23,8 @@ app.use(
   })
 )
 
-app.use('/api/project', addProject)
+app.use('/api/files', fileRoute)
+app.use('/api/project', handleProjectApi)
 app.use('/api/student', handleStudents)
 app.use('/api/users', userRouter)
 app.use('/api/auth', authRouter)
