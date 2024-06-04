@@ -49,7 +49,7 @@ export const handleAddscheduleAppointment = CatchAsync(
     if (students.length === 0) {
       return next(new AppError('No students found', 404))
     }
-    console.log('test appointment students:', students)
+    // console.log('test appointment students:', students)
 
     // Compose and send emails
     const emailPromises = students.map((student) => {
@@ -90,7 +90,7 @@ export const HandleGetListOfPointment = () => {}
 export const handleGetAppointmentWithGuideId = CatchAsync(
   async (req, res, next) => {
     const { guideId } = req.params
-    console.log('test from handle get appoint api', guideId)
+    // console.log('test from handle get appoint api', guideId)
 
     const [rows] = await db.query(
       `SELECT 

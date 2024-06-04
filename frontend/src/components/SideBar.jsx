@@ -1,55 +1,3 @@
-// import { NavLink } from 'react-router-dom'
-
-// function Sidebar() {
-//   return (
-//     <div className="w-64 h-screen bg-gray-800 text-white">
-//       <div className="p-4">
-//         <h2 className="text-2xl font-bold mb-4">Team Management</h2>
-//         <ul className="space-y-2">
-//           <li>
-//             <NavLink
-//               to="/guide/team"
-//               className={({ isActive }) =>
-//                 isActive
-//                   ? 'bg-gray-700 p-2 rounded-md block'
-//                   : 'p-2 rounded-md block'
-//               }
-//             >
-//               Home
-//             </NavLink>
-//           </li>
-//           <li>
-//             <NavLink
-//               to="/guide/team/logs"
-//               className={({ isActive }) =>
-//                 isActive
-//                   ? 'bg-gray-700 p-2 rounded-md block'
-//                   : 'p-2 rounded-md block'
-//               }
-//             >
-//               Team Logs
-//             </NavLink>
-//           </li>
-//           <li>
-//             <NavLink
-//               to="/guide/team/appointments"
-//               className={({ isActive }) =>
-//                 isActive
-//                   ? 'bg-gray-700 p-2 rounded-md block'
-//                   : 'p-2 rounded-md block'
-//               }
-//             >
-//               Team Appointments
-//             </NavLink>
-//           </li>
-//         </ul>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default Sidebar
-
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
@@ -86,7 +34,7 @@ function Sidebar() {
                 Home
               </NavLink>
             </li>
-            <li className="">
+            {/* <li className="">
               <NavLink
                 to="/guide/team/logs"
                 className={({ isActive }) =>
@@ -97,7 +45,7 @@ function Sidebar() {
               >
                 Team Logs
               </NavLink>
-            </li>
+            </li> */}
             <li className="">
               <NavLink
                 to="/guide/team/appointments"

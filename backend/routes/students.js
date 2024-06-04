@@ -12,7 +12,8 @@ import {
   handleAddNewMemberToTeam,
   handleDeleteNotificationTeamRequest,
   handleFetchTeammates,
-  handleAddTeamPreference
+  handleAddTeamPreference,
+  handleGetAppointmentForTeam,
 } from '../controllers/students.js'
 
 import { protect, restrictTo } from '../controllers/users.js'
@@ -24,13 +25,17 @@ router
   .get(handleGetBatchMates)
   .post(handleAddNotificationStudentTeammate)
   .delete(handleDeleteNotificationTeamRequest)
-  
-  router.route('/preference').post(handleAddTeamPreference)
 
-router.route('/team').get(handleFetchTeammates).post(handleAddNewTeam).patch(handleAddNewMemberToTeam)
+router.route('/preference').post(handleAddTeamPreference)
+
+router
+  .route('/team')
+  .get(handleFetchTeammates)
+  .post(handleAddNewTeam)
+  .patch(handleAddNewMemberToTeam)
 
 router.route('/teamRequest').get(handleGetAllTeamRequest)
-
+router.route('/appointment/:teamId').get(handleGetAppointmentForTeam)
 router
   .route('/:id')
   .get(protect, handleGetStudentWithId)

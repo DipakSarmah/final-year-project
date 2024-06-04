@@ -15,7 +15,7 @@ const ProjectPreferences = ({
   isLeader,
 }) => {
   const [selectedPreferences, setSelectedPreferences] = useState(['', '', ''])
-  const { showToast } = useAppContext()
+  const { showToast, user } = useAppContext()
 
   const { data: projects, isLoading: projectsLoading } = useQuery({
     queryKey: ['unallottedProjects', userDetails],
@@ -26,7 +26,6 @@ const ProjectPreferences = ({
   const teamPreferenceMutation = useMutation({
     mutationFn: storePreferences,
     onSuccess: () => {
-      alert('Preferences saved successfully')
       onClose()
       showToast({
         message: 'Preferences saved successfully',
@@ -62,6 +61,8 @@ const ProjectPreferences = ({
     teamPreferenceMutation.mutate({
       teamId: teamDetails.team_id,
       preferences: selectedPreferences,
+      dept_id: user.department,
+      course: user.course,
     })
 
     console.log(selectedPreferences)

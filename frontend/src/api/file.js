@@ -56,7 +56,7 @@ export const fetchFiles = async (guideId) => {
     }
 
     const data = await response.json()
-    console.log(data.data)
+    // console.log(data.data)
     return data.data
   } catch (error) {
     console.error('Error fetching files:', error)

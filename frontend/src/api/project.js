@@ -85,33 +85,6 @@ export const updateProject = async (projectId, projectDetails) => {
   return await response.json()
 }
 
-// export const fetchProjects = async (search, sortBy, sortOrder) => {
-//   const token = localStorage.getItem('userInfo')
-
-//   const response = await fetch(
-//     `${API_BASE_URL}/api/project?search=${encodeURIComponent(
-//       search
-//     )}&sort_by=${encodeURIComponent(sortBy)}&sort_order=${encodeURIComponent(
-//       sortOrder
-//     )}`,
-//     {
-//       method: 'GET',
-//       credentials: 'include',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         Authorization: `Bearer ${token}`,
-//       },
-//     }
-//   )
-//   if (!response.ok) {
-//     throw new Error('Failed to fetch students')
-//   }
-//   const data = await response.json()
-//   console.log(data.data)
-//   return data.data
-// }
-
-// api/project.js
 
 export const fetchProjects = async (
   search,

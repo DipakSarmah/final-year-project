@@ -17,6 +17,9 @@ import TeamLogs from './pages/Guide/TeamLogs'
 import TeamAppointment from './pages/Guide/TeamAppointment'
 import TeamHome from './pages/Guide/TeamHome'
 import ResourceCenter from './pages/Guide/ResourceCenter'
+import AutoAllotment from './pages/Admin/AutoAllotment'
+import TeamManage from './pages/Admin/TeamManage'
+import TeamManagement from './pages/students/TeamManagement'
 
 function AppWrapper() {
   const navigate = useNavigate()
@@ -30,6 +33,7 @@ function AppWrapper() {
           <Route path="/student">
             <Route path="/student/" element={<Student />} />
             <Route path="/student/team" element={<Teams />} />
+            <Route path="/student/teamdetails" element={<TeamManagement />} />
           </Route>
           <Route path="/guide" element={<Guide />} />
           <Route path="/guide">
@@ -44,14 +48,6 @@ function AppWrapper() {
               path="/guide/project-allotment"
               element={<ProjectAllotment />}
             />
-            {/* <Route path="/guide/team">
-              <Route path="/guide/team/" element={<TeamController />} />
-              <Route path="/guide/team/logs" element={<TeamLogs />} />
-              <Route
-                path="/guide/team/appointments"
-                element={<TeamAppointment />}
-              />
-            </Route> */}
             <Route path="/guide/team" element={<TeamController />}>
               <Route path="/guide/team/" element={<TeamHome />} />
               <Route path="logs" element={<TeamLogs />} />
@@ -67,6 +63,8 @@ function AppWrapper() {
               path="/admin/project-details"
               element={<ProjectDetailsCrud />}
             />
+            <Route path="/admin/auto-allot" element={<AutoAllotment />} />
+            <Route path="/admin/team-manage" element={<TeamManage />} />
           </Route>
         </Routes>
       </Layout>

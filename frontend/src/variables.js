@@ -84,7 +84,8 @@ export const GUIDECOLUMN = [
   'Action',
 ]
 
-export const Roles = ['Student', 'Guide', 'Admin']
+// export const Roles = ['Student', 'Guide', 'Admin']
+export const Roles = ['Student', 'Guide']
 
 export const ToastMessageType = {
   success: 'SUCCESS',

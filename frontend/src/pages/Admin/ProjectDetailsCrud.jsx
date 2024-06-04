@@ -305,9 +305,9 @@ function ProjectController() {
   })
 
   const fetchProjectData = () => {
-    console.log('role is : ', role)
-    console.log('user is : ', user)
-    if (role === 'admin') {
+    // console.log('role is : ', role)
+    // console.log('user is : ', user)
+    if (role === 'Admin') {
       return fetchProjects(search, sortBy, sortOrder)
     } else if (role === 'Guide' && user && user.guide_id) {
       return fetchProjects(search, sortBy, sortOrder, user.guide_id)

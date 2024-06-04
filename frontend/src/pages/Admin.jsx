@@ -50,6 +50,16 @@ function Admin() {
               description="Manage project details: create, update, delete, and view project details."
               onClick={() => navigate('/admin/project-details')}
             />
+            <Card
+              title="Automatic Allotment of Project"
+              description="Allot project Automatically to student department wise"
+              onClick={() => navigate('/admin/auto-allot')}
+            />
+            <Card
+              title="Team Management"
+              description="Manage Team details: create, update, delete, and view team details"
+              onClick={() => navigate('/admin/team-manage')}
+            />
           </div>
         </div>
       </section>

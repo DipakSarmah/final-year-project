@@ -6,18 +6,21 @@ import {
   handleEditProjectGuide,
   handleGetProjectGuideWithId,
   handleGetTeamUnderGuideId,
+  fetchResourcesByTeamAndGuide,
 } from '../controllers/projectGuide.js'
 
 import {
   handleAddscheduleAppointment,
   HandleGetListOfPointment,
   handleGetAppointmentWithGuideId,
+
 } from './../controllers/appointment.js'
 
 import { protect, restrictTo } from '../controllers/users.js'
 
 const router = express.Router()
 
+router.route('/resources/:teamId/:guideId').get(fetchResourcesByTeamAndGuide)
 router.route('/appointment/:guideId').get(handleGetAppointmentWithGuideId)
 router
   .route('/appointment')
@@ -29,6 +32,7 @@ router
   .get(protect, restrictTo('Admin', 'Guide'), handleGetProjectGuideWithId)
   .patch(protect, restrictTo('Admin'), handleEditProjectGuide)
   .delete(protect, restrictTo('Admin'), handleDeleteProjectGuide)
+
 
 router
   .route('/:guideId/teams')

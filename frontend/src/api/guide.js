@@ -131,7 +131,7 @@ export const deleteProjectGuide = async (guideId) => {
 
 export const sendEmails = async (appointmentData) => {
   try {
-    console.log('testing send emails :', appointmentData)
+    // console.log('testing send emails :', appointmentData)
     const response = await fetch(
       `${API_BASE_URL}/api/project-guide/appointment`,
       {
@@ -170,7 +170,7 @@ export const fetchAppointmentsByGuide = async (guideId) => {
       throw new Error('Failed to fetch appointments')
     }
     const data = await response.json()
-    console.log('test fetch appointmentbyguide: ', data)
+    // console.log('test fetch appointmentbyguide: ', data)
     return data.data
   } catch (error) {
     console.error('Error fetching appointments:', error)

@@ -3,97 +3,15 @@ import AppError from '../utils/AppError.js'
 import CatchAsync from '../utils/CatchAsync.js'
 
 //====> /api/student/
-// export const handleGetStudent = CatchAsync(async (req, res, next) => {
-//   const { search = '', sort_by = 'first_name', sort_order = 'asc'  } = req.query
-
-//   // Validate sort_order
-//   const order = sort_order.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
-
-//   // Validate sort_by field
-//   const validSortFields = [
-//     'first_name',
-//     'last_name',
-//     'gsuite_email',
-//     'department',
-//   ]
-//   const sortBy = validSortFields.includes(sort_by) ? sort_by : 'first_name'
-
-//   // Create the base query
-//   let query = 'SELECT * FROM `student_table` WHERE `status` = "ACTIVE"'
-
-//   // Add search functionality
-//   if (search) {
-//     query += `AND (first_name LIKE ? OR last_name LIKE ? OR gsuite_email LIKE ? OR department LIKE ?)`
-//   }
-
-//   // Add sorting functionality
-//   query += ` ORDER BY ${sortBy} ${order}`
-
-//   // Execute the query
-//   const [results] = await db.execute(query, Array(4).fill(`%${search}%`))
-
-//   res
-//     .status(200)
-//     .json({ message: 'successfully fetched the data', data: results })
-// })
-
-// export const handleGetStudent = CatchAsync(async (req, res, next) => {
-//   const {
-//     search = '',
-//     sort_by = 'first_name',
-//     sort_order = 'asc',
-//     department = null,
-//   } = req.query
-
-//   // Validate sort_order
-//   const order = sort_order.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
-
-//   // Validate sort_by field
-//   const validSortFields = [
-//     'first_name',
-//     'last_name',
-//     'gsuite_email',
-//     'department',
-//   ]
-//   const sortBy = validSortFields.includes(sort_by) ? sort_by : 'first_name'
-
-//   // Create the base query
-//   let query = 'SELECT * FROM `student_table` WHERE `status` = "ACTIVE"'
-
-//   // Add department filter for guides
-//   const params = []
-//   if (department) {
-//     query += ' AND department = ?'
-//     params.push(department)
-//   }
-
-//   // Add search functionality
-//   if (search) {
-//     query +=
-//       ' AND (first_name LIKE ? OR last_name LIKE ? OR gsuite_email LIKE ? OR department LIKE ?)'
-//     params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`)
-//   }
-
-//   // Add sorting functionality
-//   query += ` ORDER BY ${sortBy} ${order}`
-
-//   // Execute the query
-//   const [results] = await db.execute(query, params)
-
-//   res
-//     .status(200)
-//     .json({ message: 'successfully fetched the data', data: results })
-// })
-
 export const handleGetStudent = CatchAsync(async (req, res, next) => {
-  console.log('testing handle fetch student')
+  // console.log('testing handle fetch student')
   const {
     search = '',
     sort_by = 'first_name',
     sort_order = 'asc',
     department = null,
   } = req.query
-  console.log(req.query)
+  // console.log(req.query)
   // Validate sort_order
   const order = sort_order.toLowerCase() === 'desc' ? 'DESC' : 'ASC'
 
@@ -540,6 +458,9 @@ export const handleAddTeamPreference = CatchAsync(async (req, res, next) => {
   // console.log(req.body)
   const teamId = req.body.teamId
   const preferences = req.body.preferences
+  const dept_id = req.body.dept_id
+  const course = req.body.course
+  // console.log('team preferences: ', req.body)
   const preferenceString = JSON.stringify(preferences)
   // console.log(typeof preferenceString)
   if (!teamId || !preferences || preferences.length === 0) {
@@ -550,7 +471,7 @@ export const handleAddTeamPreference = CatchAsync(async (req, res, next) => {
     [teamId]
   )
 
-  console.log(isTeamPreferenceExist)
+  // console.log(isTeamPreferenceExist)
   if (isTeamPreferenceExist.length !== 0) {
     return next(
       new AppError(
@@ -561,8 +482,8 @@ export const handleAddTeamPreference = CatchAsync(async (req, res, next) => {
   }
 
   const [addPreferences, fields] = await db.execute(
-    'insert into team_preference_table (team_id,preferences) VALUES (?,?)',
-    [teamId, preferenceString]
+    'insert into team_preference_table (team_id,preferences,dept_id,course) VALUES (?,?,?,?)',
+    [teamId, preferenceString, dept_id, course]
   )
 
   res.status(201).json({
@@ -570,3 +491,48 @@ export const handleAddTeamPreference = CatchAsync(async (req, res, next) => {
     data: req.body,
   })
 })
+
+export const handleGetAppointmentForTeam = CatchAsync(
+  async (req, res, next) => {
+    const teamId = req.params.teamId
+    // console.log('handle appointment', req.params)
+    // console.log('test from handle get appoint api', teamId)
+
+    const [rows] = await db.query(
+      `SELECT 
+      a.appointment_id, 
+      a.guide_id, 
+      a.team_id, 
+      a.time_stamp, 
+      a.subject, 
+      a.message, 
+      t.team_name,
+      CASE 
+        WHEN a.time_stamp < NOW() THEN 'Completed' 
+        ELSE 'Scheduled' 
+      END AS appointStatus 
+    FROM 
+      appointment_table a
+    JOIN 
+      project_team_table t ON a.team_id = t.team_id 
+    WHERE 
+      a.team_id = ?
+    ORDER BY 
+      a.time_stamp ASC
+    `,
+      [teamId]
+    )
+
+    const scheduledAppointments = rows.filter(
+      (app) => app.appointStatus === 'Scheduled'
+    )
+    const completedAppointments = rows.filter(
+      (app) => app.appointStatus === 'Completed'
+    )
+    // console.log(scheduledAppointments, completedAppointments)
+    res.status(200).json({
+      message: 'Successfully fetch the appointments.',
+      data: { scheduledAppointments, completedAppointments },
+    })
+  }
+)

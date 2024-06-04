@@ -10,6 +10,7 @@ import userRouter from './routes/user.js'
 import authRouter from './routes/auth.js'
 import projectGuideRouter from './routes/projectGuide.js'
 import fileRoute from './routes/fileRoute.js'
+import handleAdminRoutes from './routes/AdminRoute.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -29,6 +30,8 @@ app.use('/api/student', handleStudents)
 app.use('/api/users', userRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/project-guide', projectGuideRouter)
+app.use('/api/admin', handleAdminRoutes)
+
 
 app.all('*', (req, res, next) => {
   // const err = new Error(`Can't find ${req.originalUrl} on the server!`)

@@ -1,29 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
-// export const fetchStudents = async (search, sortBy, sortOrder, department) => {
-//   console.log(department)
-//   const response = await fetch(
-//     `${API_BASE_URL}/api/student?search=${encodeURIComponent(
-//       search
-//     )}&sort_by=${encodeURIComponent(sortBy)}&sort_order=${encodeURIComponent(
-//       sortOrder
-//     )}&department=${encodeURIComponent(department)}`,
-//     {
-//       method: 'GET',
-//       credentials: 'include',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//     }
-//   )
-//   if (!response.ok) {
-//     throw new Error('Failed to fetch students')
-//   }
-//   const data = await response.json()
-//   console.log(data)
-//   // console.log(data.data)
-//   return data.data
-// }
 export const fetchStudents = async (
   search,
   sortBy,
@@ -254,4 +230,68 @@ export const storePreferences = async (data) => {
     throw new Error(responseBody.message)
   }
   return responseBody.data
+}
+
+export const fetchProjectAllocation = async (teamId) => {
+  // console.log('testing fetch project allocations', teamId)
+  const response = await fetch(
+    `${API_BASE_URL}/api/project/project-allocation/${teamId}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+
+  const responseBody = await response.json()
+  // console.log('from project allocation', responseBody)
+
+  if (!response.ok) {
+    throw new Error(responseBody.message)
+  }
+  return responseBody
+}
+
+export const fetchAppointmentsByStudent = async (teamId) => {
+  // console.log('fetch appoinmtnefna: ', teamId)
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/student/appointment/${teamId}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) {
+    throw new Error('Failed to fetch appointments')
+  }
+  const data = await response.json()
+  // console.log(data)
+  return data.data
+}
+
+export const fetchResourcesByTeamAndGuide = async (teamId, guideId) => {
+  // console.log(teamId, guideId)
+  const response = await fetch(
+    `${API_BASE_URL}/api/project-guide/resources/${teamId}/${guideId}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+
+  if (!response.ok) {
+    const errorDetails = await response.json()
+    throw new Error(errorDetails.message || 'Failed to fetch resources')
+  }
+
+  return await response.json()
 }

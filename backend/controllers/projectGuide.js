@@ -93,15 +93,28 @@ export const handleGetTeamUnderGuideId = CatchAsync(async (req, res, next) => {
   })
 })
 
+export const fetchResourcesByTeamAndGuide = CatchAsync(
+  async (req, res, next) => {
+    const { teamId, guideId } = req.params
+
+    const [resources] = await db.execute(
+      'SELECT * FROM team_file WHERE team_id = ? AND guide_id = ?',
+      [teamId, guideId]
+    )
+
+    res.status(200).json({ resources })
+  }
+)
+
 export const handleDeleteProjectGuide = CatchAsync(async (req, res, next) => {
   const { id } = req.params
-  console.log(req.params)
+  // console.log(req.params)
 
   const [isAdmin] = await db.execute(
     'SELECT * FROM user_table where user_id=?',
     [id]
   )
-  console.log(isAdmin)
+  // console.log(isAdmin)
   if (isAdmin[0].role === 'Admin') {
     return next(new AppError('You cannot delete Admin'))
   }
@@ -127,7 +140,7 @@ export const handleDeleteProjectGuide = CatchAsync(async (req, res, next) => {
 export const handleEditProjectGuide = CatchAsync(async (req, res, next) => {
   const { id } = req.params
   const { email, firstName, lastName, department } = req.body
-  console.log(req.body)
+  // console.log(req.body)
   // Check for missing or undefined parameters
   if (!id || !email || !firstName || !lastName || !department) {
     return res.status(400).json({ message: 'Missing required fields' })

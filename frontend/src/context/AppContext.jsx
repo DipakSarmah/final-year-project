@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { createContext, useState, useEffect } from 'react'
 import Toast from '../components/Toast'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const AppContext = createContext(null)
 
@@ -11,7 +12,10 @@ export const AppContextProvider = ({ children, navigate }) => {
   )
   const [token, setToken] = useState(localStorage.getItem('userInfo'))
   const [role, setRole] = useState(localStorage.getItem('role'))
+  const [isProjectAllocatedForStudent, setIsProjectAllocated] = useState(false)
+  const [projectDetails, setProjectDetails] = useState('')
 
+  const queryClient = useQueryClient()
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
     if (storedUser) {
@@ -46,6 +50,13 @@ export const AppContextProvider = ({ children, navigate }) => {
     setRole(role)
     setToken(token)
   }
+  const updatedIsProjectAllocationForStudent = (
+    isallocated,
+    projectDetails
+  ) => {
+    setIsProjectAllocated(isallocated)
+    setProjectDetails(projectDetails)
+  }
 
   const logout = () => {
     localStorage.removeItem('userDetails')
@@ -54,6 +65,9 @@ export const AppContextProvider = ({ children, navigate }) => {
     setUser(null)
     setRole(null)
     setToken(null)
+    setProjectDetails(null)
+    setIsProjectAllocated(false)
+    queryClient.clear()
     navigate('/')
   }
   return (
@@ -61,6 +75,9 @@ export const AppContextProvider = ({ children, navigate }) => {
       value={{
         user,
         login,
+        projectDetails,
+        isProjectAllocatedForStudent,
+        updatedIsProjectAllocationForStudent,
         token,
         role,
         logout,

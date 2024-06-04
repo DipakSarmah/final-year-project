@@ -26,7 +26,7 @@ const handleCaseErrorDB = (error) => {
 
 const sendErrorProd = (err, res) => {
   // Operational, trusted error: send message to client
-  console.log('test error send error from production', err)
+  // console.log('test error send error from production', err)
   if (err.isOperational) {
     res.status(err.statusCode).json({
       status: err.status,
@@ -47,7 +47,7 @@ const sendErrorProd = (err, res) => {
 }
 
 const sendErrorDev = (err, res) => {
-  console.log('test send error from dev', err)
+  // console.log('test send error from dev', err)
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -62,7 +62,7 @@ const handleJWTExpiredError = (err) =>
   new AppError('Your token has expired! Please log in again', 401)
 
 export default (err, req, res, next) => {
-  console.log(err)
+  // console.log(err)
   err.statusCode = err.statusCode || 500
   err.status = err.status || 'error'
   if (process.env.NODE_ENV === 'development') {
