@@ -103,7 +103,7 @@ export const handleSignIn = CatchAsync(async (req, res, next) => {
     )
   }
 
-  console.log('test signin: ', userDetails)
+  // console.log('test signin: ', userDetails)
   if (userDetails.length === 0) {
     return next(new AppError('Re-Register to Login In.', 401))
   }

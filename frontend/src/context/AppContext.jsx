@@ -19,7 +19,7 @@ export const AppContextProvider = ({ children, navigate }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('userDetails')
     if (storedUser) {
-      console.log('User Details from localStorage:', JSON.parse(storedUser)) // Add this line
+      // console.log('User Details from localStorage:', JSON.parse(storedUser)) // Add this line
       setUser(JSON.parse(storedUser))
     } else {
       console.log('No user details found in localStorage') // Add this line

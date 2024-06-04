@@ -21,7 +21,7 @@ function Register() {
   const mutation = useMutation({
     mutationFn: apiClient.register,
     onSuccess: async (res) => {
-      console.log('registration successful')
+      // console.log('registration successful')
 
       login(res.userDetails, res.token, res.role)
       showToast({
@@ -37,7 +37,7 @@ function Register() {
       }
     },
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
       showToast({
         message: error.message,
         type: ToastMessageType.error,
