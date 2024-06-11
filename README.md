@@ -70,13 +70,15 @@ npm start
 
 ### Additional Notes:
 - **Screenshots and Diagrams**:
-![ER-diagram of Project management system(PMS)](https://github.com/DipakSarmah/final-year-project/assets/92313801/c15c0258-3c1e-4a5c-b106-b0a789767af1)
+
+![Er-diagram of Project management system](https://github.com/DipakSarmah/final-year-project/assets/92313801/73fac995-ef65-4426-ae89-48f3faf6da71)
 
 ![DFD LEVEL 1](https://github.com/DipakSarmah/final-year-project/assets/92313801/fa9466e6-3b03-4610-9e85-f84e5a3f637a)
 
 ![DFD Level 2(a)](https://github.com/DipakSarmah/final-year-project/assets/92313801/e61a7551-2ed1-4994-8dca-48c71ea70e92)
 
-![DFD Level 2(b)](https://github.com/DipakSarmah/final-year-project/assets/92313801/8d0669ff-f81f-4e3f-a5d8-b17c2ed3e4f4)
+
+![DFD Level 2(b)](https://github.com/DipakSarmah/final-year-project/assets/92313801/928732a2-9731-4624-b457-bf52edc8cbf6)
 
 ![Landing page pms-1](https://github.com/DipakSarmah/final-year-project/assets/92313801/f8f0c04a-aac4-40ff-a297-e2a792113fea)
 
