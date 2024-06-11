@@ -7,7 +7,7 @@ import './styles/tailwind.css'
 import './styles/custom.css'
 // import { AppContextProvider } from './context/AppContext.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -20,7 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <QueryClientProvider client={queryClient}>
       {/* <AppContextProvider> */}
       <App />
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       {/* </AppContextProvider> */}
     </QueryClientProvider>
   </React.StrictMode>

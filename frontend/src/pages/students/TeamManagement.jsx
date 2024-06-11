@@ -99,7 +99,8 @@ function TeamManagement() {
         <Modal onClose={handleCloseModal} isVisible={showAppointmentModal}>
           <AppointmentSchedule teamDetails={teamNmateDetails.teamDetails} />
         </Modal>
-        <StudentResourceCenter projectDetails={projectDetails} />
+        {/* <StudentResourceCenter projectDetails={projectDetails} /> */}
+        <StudentResourceCenter />
       </div>
     </div>
   )

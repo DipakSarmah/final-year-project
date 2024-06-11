@@ -7,8 +7,8 @@ function Home() {
             Access All The Project Management Resources right here.
           </h2>
           <p className="text-xl font-mono">
-            Welcome to SPAMS, where projects meet mentorship. Empowering
-            students, guides, and admins for success
+            Welcome to PMS, where projects meet mentorship. Empowering students,
+            guides, and admins for success
           </p>
         </div>
         <div className="col-span-2/7 px-14 m-auto" id="hero-illustration">

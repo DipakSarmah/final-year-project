@@ -3,23 +3,26 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchResourcesByTeamAndGuide } from '../../api/student'
+import { useAppContext } from '../../hooks/useContextHooks'
 
-function StudentResourceCenter({ projectDetails }) {
-  // const {projectDetails} = useAppContext();
+function StudentResourceCenter() {
+  const { projectDetails } = useAppContext()
   const [teamId, setTeamId] = useState(projectDetails.team_id)
   const [guideId, setGuideId] = useState(projectDetails.guide_id)
   const [isFetching, setIsFetching] = useState(false)
-
+  const [toggleState, setToggleState] = useState(false)
   const { data, isLoading, error } = useQuery({
     queryKey: ['resources', teamId, guideId],
     queryFn: () => fetchResourcesByTeamAndGuide(teamId, guideId),
-    enabled: !!teamId && !!guideId,
+    // enabled: !!teamId && !!guideId ,
   })
 
   const handleFetchResources = () => {
-    setIsFetching(true)
-    setTeamId(projectDetails.team_id)
-    setGuideId(projectDetails.guideId)
+    setToggleState((prev) => !prev)
+    // setIsFetching(true)
+    // setTeamId(projectDetails.team_id)
+    // setGuideId(projectDetails.guideId)
+    // setIsFetching(false)
   }
 
   return (
@@ -66,7 +69,7 @@ function StudentResourceCenter({ projectDetails }) {
           No resources available
         </div>
       )}
-      {data && data.resources.length > 0 && (
+      {toggleState && data && data.resources.length > 0 && (
         <div className="mt-8">
           <h3 className="text-2xl font-bold mb-4">Uploaded Resources</h3>
           <div className="overflow-x-auto">
